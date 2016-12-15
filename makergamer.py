@@ -2,6 +2,7 @@ import pygame
 from glob import glob
 from json import loads as json
 from runpy import run_path
+from os import system
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
@@ -36,7 +37,7 @@ class Tile:
         self.currentGame = currentGame
 
 tiles = []
-tiles.append(Tile("icons/download.png", "Download"))
+tiles.append(Tile("icons/download.png", "Download", "download"))
 tiles.append(Tile("icons/play.png", "Play", "play"))
 tiles.append(Tile("icons/edit.png", "Edit", "edit"))
 tiles.append(Tile("icons/person.png", "Friends"))
@@ -45,6 +46,8 @@ tiles.append(Tile("icons/settings.png", "Settings"))
 
 numToXy = {0:(0, 0), 1:(third, 0), 2:(2*third, 0),
            3:(0, half), 4:(third, half), 5:(2*third, half)}
+
+halfNumToXy = {0:(0, half), 1:(third, half), 2:(2*third, half)}
 
 class TileMenu:
     def __init__(self, tiles, left=False, right=False): # Left, right refer to presence of arrows
@@ -96,6 +99,70 @@ class TileMenu:
         return 0
 
 menu = TileMenu(tiles)
+
+class HalfMenu:
+    def __init__(self, tiles):
+        self.tiles = tiles
+
+    def draw(self):
+        for i, tile in enumerate(self.tiles):
+            x, y = halfNumToXy[i]
+            DISPLAY.blit(tile.image, (x+offset, y+top_padding))
+            #print("Blitting text "+tile.title+" to "+str((x-tile.titleOffset, y-bottom_padding)))
+            DISPLAY.blit(tile.titleSurf, (x+tile.titleOffset, y+(half-bottom_padding)+text_padding))
+
+
+    def handleMouse(self, pos):
+        global mode, currentGame
+        x, y = pos
+        t = None
+        if y < half:
+            return
+        if x < third:
+            t = 0
+        elif x < 2*third:
+            t = 1
+        else:
+            t = 2
+        if t >= len(self.tiles):
+            return 0 # No tile there!
+        mode = self.tiles[t].mode
+        currentGame = self.tiles[t].currentGame
+        return 0
+
+shifts = {"`":"~",
+          "1":"!", "2":"@", "3":"#", "4":"$", "5":"%", "6":"^", "7":"&", "8":"*", "9":"(", "0":")",
+          "-":"_", "=":"+",
+          "[":"{", "]":"}", "\\":"|",
+          ";":":", "'":'"',
+          ",":"<", ".":">", "/":"?"}
+
+class Textbox:
+    def __init__(self):
+        self.x = 100
+        self.y = half/2 - 10
+        self.width = WIDTH - 200
+        self.height = 20
+        self.text = ""
+        self.shift = False
+
+    def draw(self):
+        pygame.draw.rect(DISPLAY, (255, 255, 255), (self.x, self.y, self.width, self.height), 4)
+        pygame.draw.rect(DISPLAY, (0, 0, 0), (self.x, self.y, self.width, self.height))
+        textSurf = myfont.render(self.text, 1, (255, 255, 255))
+        DISPLAY.blit(textSurf, (self.x, self.y))
+
+    def addch(self, ch):
+        if not self.shift:
+            self.text += ch
+        else:
+            try:
+                self.text += shifts[ch]
+            except KeyError:
+                self.text += ch.upper()
+
+    def delete(self):
+        self.text = self.text[:-1]
 
 
 clock = pygame.time.Clock()
@@ -296,8 +363,68 @@ def home():
         pygame.display.update()
         clock.tick(30)
 
+def download():
+    global mode
+    tiles = []
+    tiles.append(Tile("icons/back.png", "Back"))
+    tiles.append(Tile("icons/download.png", "Download", "download", ""))
+    downMenu = HalfMenu(tiles)
+    textbox = Textbox()
+    while mode == "download" and currentGame == "":
+        DISPLAY.blit(wallpaper, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                mode == "quit"
+                break
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                downMenu.handleMouse(event.pos)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    textbox.delete()
+                elif event.key in [pygame.K_RSHIFT, pygame.K_LSHIFT]:
+                    textbox.shift = True
+                else:
+                    try:
+                        textbox.addch(chr(event.key))
+                    except:
+                        pass
+            elif event.type == pygame.KEYUP:
+                if event.key in [pygame.K_RSHIFT, pygame.K_LSHIFT]:
+                    textbox.shift = False
+        downMenu.draw()
+        textbox.draw()
+        downMenu.tiles[1].currentGame = textbox.text
+        pygame.display.update()
+        clock.tick(30)
+
+def downloadSwitch():
+    global currentGame
+    if currentGame == "":
+        download()
+    else:
+        downloadGame()
+
+def downloadGame():
+    global currentGame
+    scratch = False
+    try:
+        int(currentGame)
+    except:
+        scratch = False
+    else:
+        scratch = True
+    if scratch:
+        print("You can't download https://scratch.mit.edu/projects/"+currentGame+"/ yet.")
+    else:
+        repo_name = currentGame.split("/")[-1]
+        system("git clone https://github.com/"+currentGame+"/ games/"+repo_name)
+        #print("You can't download https://github.com/"+currentGame+" yet.")
+    currentGame = ""
+
 modes = {"home":home, "play":playSwitch, "edit":editSwitch,
-         "editCode":editCode, "editImages":editImages, "editSounds":editSounds}
+         "editCode":editCode, "editImages":editImages, "editSounds":editSounds,
+         "download":downloadSwitch}
 
 while True:
     if mode == "quit":
