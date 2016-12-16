@@ -3,6 +3,7 @@ from glob import glob
 from json import loads as json
 from runpy import run_path
 from os import system
+#from webbrowser import open as webopen
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
@@ -303,6 +304,15 @@ def edit():
 
 def playGame():
     global currentGame, DISPLAY
+    files = glob("games/"+currentGame+"/*")
+    if "games/"+currentGame+"/index.py" in files:
+        playPY()
+    else:
+        system("midori -e Fullscreen games/"+currentGame+"/index.html")
+    currentGame = ""
+
+def playPY():
+    global currentGame, DISPLAY
     try:
         run_path("games/"+currentGame+"/index.py")
     except Exception as e:
@@ -310,7 +320,6 @@ def playGame():
     pygame.init()
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("MakerGamer")
-    currentGame = ""
 
 def editGame():
     global mode, currentGame
