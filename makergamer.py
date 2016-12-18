@@ -3,6 +3,7 @@ from glob import glob
 from json import loads as json
 from runpy import run_path
 from os import system
+import texteditor
 #from webbrowser import open as webopen
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
@@ -345,7 +346,13 @@ def editGame():
 
 def editCode():
     global mode
-    print("You can't edit "+currentGame+"'s code yet, sorry")
+    files = glob("games/"+currentGame+"/*")
+    if "games/"+currentGame+"/index.py" in files:
+        texteditor.load("games/"+currentGame+"/index.py")
+    elif "games/"+currentGame+"/index.html" in files:
+        texteditor.load("games/"+currentGame+"/index.html")
+    else:
+        print("No editable code found")
     mode = "edit"
 
 def editImages():
