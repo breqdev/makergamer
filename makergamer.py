@@ -8,6 +8,8 @@ import texteditor
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
+pygame.mouse.set_visible(False)
+
 WIDTH = 480
 HEIGHT = 272
 DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -456,3 +458,5 @@ while True:
         break
     elif mode in modes:
         modes[mode]()
+
+pygame.mouse.set_visible(True)
