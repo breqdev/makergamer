@@ -2,31 +2,9 @@ import pygame
 from glob import glob
 from json import loads as json
 from runpy import run_path
-from os import system, chdir, getenv, putenv
+from os import system, chdir
 import texteditor
 #from webbrowser import open as webopen
-
-disp_no = getenv("DISPLAY")
-
-drivers = ['directfb', 'fbcon', 'svgalib']
-
-found = False
-for driver in drivers:
-    if not getenv("SDL_VIDEODRIVER"):
-        putenv("SDL_VIDEODRIVER", driver)
-    try:
-        pygame.display.init()
-    except pygame.error:
-        continue
-    found = True
-    break
-
-if not found:
-    raise Exception("You ain't got no suitable video drivah!")
-
-size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
-DISPLAY = pygame.display.set_mode(size, pygame.FULLSCREEN)
-
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
@@ -34,7 +12,7 @@ pygame.mouse.set_visible(False)
 
 WIDTH = 480
 HEIGHT = 272
-#DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
+DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("MakerGamer")
 
 third = int(WIDTH / 3)
