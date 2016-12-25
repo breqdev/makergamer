@@ -2,7 +2,7 @@ import pygame
 from glob import glob
 from json import loads as json
 from runpy import run_path
-from os import system
+from os import system, chdir
 import texteditor
 #from webbrowser import open as webopen
 pygame.init()
@@ -322,9 +322,11 @@ def playGame():
 def playPY():
     global currentGame, DISPLAY
     try:
-        run_path("games/"+currentGame+"/index.py")
+        chdir("games/"+currentGame+"/")
+        run_path("index.py")
     except Exception as e:
         print(e)
+    chdir("../..")
     pygame.init()
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("MakerGamer")
