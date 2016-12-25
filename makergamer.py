@@ -166,6 +166,13 @@ class Textbox:
     def delete(self):
         self.text = self.text[:-1]
 
+def handleQuit(event):
+    if event.type == pygame.QUIT:
+        return True
+    elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            return True
+    return False
 
 clock = pygame.time.Clock()
 
@@ -254,7 +261,7 @@ def play():
     while mode == "play" and currentGame == "":
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if handleQuit(event):
                 pygame.quit()
                 mode == "quit"
                 break
@@ -282,7 +289,7 @@ def edit():
     while mode == "edit" and currentGame == "":
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if handleQuit(event):
                 pygame.quit()
                 mode == "quit"
                 break
@@ -334,7 +341,7 @@ def editGame():
     while mode == "edit" and currentGame == startingGame:
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if handleQuit(event):
                 pygame.quit()
                 mode == "quit"
                 break
@@ -369,7 +376,7 @@ def home():
     while mode == "home":
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if handleQuit(event):
                 pygame.quit()
                 mode == "quit"
                 break
@@ -389,7 +396,7 @@ def download():
     while mode == "download" and currentGame == "":
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if handleQuit(event):
                 pygame.quit()
                 mode == "quit"
                 break
@@ -447,4 +454,3 @@ while True:
         break
     elif mode in modes:
         modes[mode]()
-    

@@ -317,7 +317,7 @@ def load(filename):
     DISPLAY = pygame.display.set_mode((480, 272))
     pygame.scrap.init()
     clock = pygame.time.Clock()
-    font = pygame.font.SysFont("Ubuntu Mono", 12)
+    font = pygame.font.SysFont("Ubuntu Mono", 20)
 
     with open(filename, "r") as myFile:
         start_str = myFile.read()
