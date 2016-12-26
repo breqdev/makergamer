@@ -184,7 +184,7 @@ def makePlayMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json") as manifestFile:
+            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project
@@ -209,7 +209,7 @@ def makeEditMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json") as manifestFile:
+            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project

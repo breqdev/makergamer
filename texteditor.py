@@ -306,7 +306,7 @@ class TextEditor:
         self.highlightDel()
 
     def ctrlS(self):
-        with open(self.file, "w") as myFile:
+        with open(self.file, "w", encoding="utf-8") as myFile:
             myFile.write("\n".join(self.text))
 
         
@@ -319,7 +319,7 @@ def load(filename):
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("Ubuntu Mono", 20)
 
-    with open(filename, "r") as myFile:
+    with open(filename, "r", encoding="utf-8") as myFile:
         start_str = myFile.read()
 
     te = TextEditor(DISPLAY, 480, 272, font, filename, start_str)
