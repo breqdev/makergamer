@@ -318,7 +318,7 @@ def playGame():
     if "games/"+currentGame+"/index.py" in files:
         playPY()
     else:
-        system("midori -e Fullscreen games/"+currentGame+"/index.html")
+        system("surf file:///home/chip/makergamer/games/"+currentGame+"/index.html")
     currentGame = ""
 
 def playPY():
