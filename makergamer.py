@@ -3,6 +3,7 @@ from glob import glob
 from json import loads as json
 from runpy import run_path
 from os import system, chdir
+from os.path import isfile
 import texteditor
 #from webbrowser import open as webopen
 pygame.init()
@@ -190,7 +191,10 @@ def makePlayMenu():
             # Probably a Scratch project
             # Make up a manifest on the fly
             manifest = {"title":gamedir}
-        icon = "icons/play.png"
+        if isfile(game+"favicon.png"):
+            icon = game+"favicon.png"
+        else:
+            icon = "icons/play.png"
         title = manifest["title"]
         tiles.append(Tile(icon, title, mode="play", currentGame=gamedir))
     menus = []
@@ -215,7 +219,10 @@ def makeEditMenu():
             # Probably a Scratch project
             # Make up a manifest on the fly
             manifest = {"title":gamedir}
-        icon = "icons/edit.png"
+        if isfile(game+"favicon.png"):
+            icon = game+"favicon.png"
+        else:
+            icon = "icons/play.png"
         title = manifest["title"]
         tiles.append(Tile(icon, title, mode="edit", currentGame=gamedir))
     menus = []
