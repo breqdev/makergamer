@@ -185,7 +185,7 @@ def makePlayMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json") as manifestFile:
+            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project
@@ -213,7 +213,7 @@ def makeEditMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json") as manifestFile:
+            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project
@@ -325,7 +325,7 @@ def playGame():
     if "games/"+currentGame+"/index.py" in files:
         playPY()
     else:
-        system("midori -e Fullscreen games/"+currentGame+"/index.html")
+        system("surf file:///home/chip/makergamer/games/"+currentGame+"/index.html")
     currentGame = ""
 
 def playPY():
