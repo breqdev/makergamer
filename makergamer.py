@@ -4,6 +4,7 @@ from json import loads as json
 from runpy import run_path
 from os import system, chdir
 from os.path import isfile
+from shutil import rmtree
 import texteditor
 #from webbrowser import open as webopen
 pygame.init()
@@ -354,7 +355,8 @@ def edit():
 def playGame():
     global currentGame
     myGame = currentGame
-    tiles = [Tile("icons/back.png", "Back", "play"), Tile("icons/play.png", "Play", "run", currentGame)]
+    tiles = [Tile("icons/back.png", "Back", "play"), Tile("icons/play.png", "Play", "run", currentGame),
+             Tile("icons/trash.png", "Delete", "delete", currentGame)]
     menu = HalfMenu(tiles)
     if isfile("games/"+currentGame+"/favicon.png"):
         icon = "games/"+currentGame+"/favicon.png"
@@ -407,6 +409,12 @@ def playPY():
     pygame.init()
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("MakerGamer")
+
+def delete():
+    global currentGame, mode
+    rmtree("games/"+currentGame+"/")#, ignore_errors=True)
+    mode = "home"
+    currentGame = ""
 
 def editGame():
     global mode, currentGame
@@ -526,7 +534,7 @@ def downloadGame():
 
 modes = {"home":home, "play":playSwitch, "edit":editSwitch,
          "editCode":editCode, "editImages":editImages, "editSounds":editSounds,
-         "download":downloadSwitch, "run":runGame}
+         "download":downloadSwitch, "run":runGame, "delete":delete}
 
 while True:
     if mode == "quit":
