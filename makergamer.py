@@ -9,7 +9,8 @@ import texteditor
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
-pygame.mouse.set_visible(False)
+#pygame.mouse.set_visible(False)
+# Commented out for debugging purposes (writing this on Ubuntu laptop)
 
 WIDTH = 480
 HEIGHT = 272
@@ -169,6 +170,37 @@ class Textbox:
     def delete(self):
         self.text = self.text[:-1]
 
+class GameInfo:
+    def __init__(self, icon, title, description):
+        self.icon = pygame.image.load(icon).convert_alpha()
+        self.icon_l = sorted((int(WIDTH/2-20), int(half-20)))[0]
+        self.icon = pygame.transform.scale(self.icon, (self.icon_l, self.icon_l))
+        self.title = myfont.render(title, True, (255, 255, 255))
+
+        self.descriptions = []
+        
+        d = ""
+        description = description.split(" ")
+        maxW = WIDTH-(self.icon_l+40)
+        # This basically just keeps adding words to a line until it is too long,
+        # then starts a new line.
+        for i in range(len(description)):
+            #print(d)
+            if myfont.size(d+description[i]+" ")[0] > maxW:
+                # If the current string plus the next word is too big...
+                self.descriptions.append(myfont.render(d, True, (255, 255, 255)))
+                d = ""
+            d += description[i]+" "
+        self.descriptions.append(myfont.render(d, True, (255, 255, 255)))
+
+    def draw(self):
+        global DISPLAY
+        DISPLAY.blit(self.icon, (10, 10))
+        DISPLAY.blit(self.title, (self.icon_l+20, 10))
+        for i, d in enumerate(self.descriptions):
+            DISPLAY.blit(d, (self.icon_l+20, 30+20*i))
+        
+
 def handleQuit(event):
     if event.type == pygame.QUIT:
         return True
@@ -185,12 +217,12 @@ def makePlayMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
+            with open(game+"manifest.json") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project
             # Make up a manifest on the fly
-            manifest = {"title":gamedir}
+            manifest = {"title":gamedir, "description":"No Description Provided"}
         if isfile(game+"favicon.png"):
             icon = game+"favicon.png"
         else:
@@ -213,12 +245,12 @@ def makeEditMenu():
     for game in games:
         gamedir = game.split("/")[1]
         try:
-            with open(game+"manifest.json", encoding="utf-8") as manifestFile:
+            with open(game+"manifest.json") as manifestFile:
                 manifest = json(manifestFile.read())
         except:
             # Probably a Scratch project
             # Make up a manifest on the fly
-            manifest = {"title":gamedir}
+            manifest = {"title":gamedir, "description":"No Description Provided"}
         if isfile(game+"favicon.png"):
             icon = game+"favicon.png"
         else:
@@ -320,13 +352,49 @@ def edit():
         clock.tick(30)
 
 def playGame():
-    global currentGame, DISPLAY
+    global currentGame
+    myGame = currentGame
+    tiles = [Tile("icons/back.png", "Back", "play"), Tile("icons/play.png", "Play", "run", currentGame)]
+    menu = HalfMenu(tiles)
+    if isfile("games/"+currentGame+"/favicon.png"):
+        icon = "games/"+currentGame+"/favicon.png"
+    else:
+        icon = "icons/play.png"
+    try:
+        with open("games/"+currentGame+"/manifest.json") as manifestFile:
+            manifest = json(manifestFile.read())
+    except:
+        # Probably a Scratch project
+        # Make up a manifest on the fly
+        manifest = {"title":currentGame, "description":"No Description Provided"}
+    if "title" not in manifest.keys():
+        manifest["title"] = currentGame
+    if "description" not in manifest.keys():
+        manifest["description"] = "No Description Provided"
+    info = GameInfo(icon, manifest["title"], manifest["description"])
+    while mode == "play" and currentGame == myGame:
+        DISPLAY.blit(wallpaper, (0, 0))
+        for event in pygame.event.get():
+            if handleQuit(event):
+                pygame.quit()
+                mode == "quit"
+                break
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                menu.handleMouse(event.pos)
+        menu.draw()
+        info.draw()
+        pygame.display.update()
+        clock.tick(30)
+
+def runGame():
+    global currentGame, mode, DISPLAY
     files = glob("games/"+currentGame+"/*")
     if "games/"+currentGame+"/index.py" in files:
         playPY()
     else:
-        system("surf file:///home/chip/makergamer/games/"+currentGame+"/index.html")
+        system("surf file://~/makergamer/games/"+currentGame+"/index.html")
     currentGame = ""
+    mode = "home"
 
 def playPY():
     global currentGame, DISPLAY
@@ -458,7 +526,7 @@ def downloadGame():
 
 modes = {"home":home, "play":playSwitch, "edit":editSwitch,
          "editCode":editCode, "editImages":editImages, "editSounds":editSounds,
-         "download":downloadSwitch}
+         "download":downloadSwitch, "run":runGame}
 
 while True:
     if mode == "quit":
