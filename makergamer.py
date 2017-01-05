@@ -392,7 +392,7 @@ def runGame():
     if "games/"+currentGame+"/index.py" in files:
         playPY()
     else:
-        system("surf file://~/makergamer/games/"+currentGame+"/index.html")
+        system("surf file:///home/chip/makergamer/games/"+currentGame+"/index.html")
     currentGame = ""
     mode = "home"
 
