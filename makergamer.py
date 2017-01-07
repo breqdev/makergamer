@@ -679,7 +679,7 @@ def makeScratchMenu():
         title = p["title"]
         if len(title) > 15:
             title = title[:12]+"..."
-        tiles.insert(1, Tile("icons/play.png", title, "download", p["id"]))
+        tiles.insert(1, Tile("icons/play.png", title, "download", str(p["id"])))
 
     menus = []
     for x in range(0, len(tiles), 6):
