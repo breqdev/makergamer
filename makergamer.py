@@ -11,8 +11,8 @@ import texteditor
 pygame.init()
 myfont = pygame.font.SysFont("Ubuntu", 20, bold=True)
 
-#pygame.mouse.set_visible(False)
-# Commented out for debugging purposes (writing this on Ubuntu laptop)
+pygame.mouse.set_visible(False)
+# Comment out for debugging purposes (writing this on Ubuntu laptop)
 
 WIDTH = 480
 HEIGHT = 272
