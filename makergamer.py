@@ -5,6 +5,7 @@ from runpy import run_path
 from os import system, chdir
 from os.path import isfile
 from shutil import rmtree
+from requests import get as request
 import texteditor
 #from webbrowser import open as webopen
 pygame.init()
@@ -516,7 +517,7 @@ def downloadSwitch():
         downloadGame()
 
 def downloadGame():
-    global currentGame
+    global currentGame, mode
     scratch = False
     try:
         int(currentGame)
@@ -549,7 +550,7 @@ def downloadGame():
 </div>
 </div>
 <script src=fonts.js></script>
-<script src=http://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js></script>
+<script src=lib/jszip.js></script>
 <script src=lib/rgbcolor.js></script>
 <script src=lib/StackBlur.js></script>
 <script src=lib/canvg.js></script>
@@ -652,14 +653,82 @@ def downloadGame():
 ''')
         system("surf file:///home/chip/phosphorus/app.html")
     else:
-        repo_name = currentGame.split("/")[-1]
-        system("git clone https://github.com/"+currentGame+"/ games/"+repo_name)
-        #print("You can't download https://github.com/"+currentGame+" yet.")
+        if not "/" in currentGame:
+            mode = "scratch"
+            print("currentGame is a Scratch uname. Switching to Scratch mode.")
+            return
+        else:
+            repo_name = currentGame.split("/")[-1]
+            system("git clone https://github.com/"+currentGame+"/ games/"+repo_name)
     currentGame = ""
+
+def makeScratchMenu():
+    global currentGame
+    
+    def getProjects(user, offset=0):
+        r = request("https://api.scratch.mit.edu/users/"+user+"/projects?offset="+str(offset)).json()
+        if len(r) == 20:
+            r += getProjects(user, offset+20)
+        return r
+
+    projects = getProjects(currentGame)
+
+    tiles = [Tile("icons/back.png", "Back")]
+
+    for p in projects:
+        title = p["title"]
+        if len(title) > 15:
+            title = title[:12]+"..."
+        tiles.insert(1, Tile("icons/play.png", title, "download", p["id"]))
+
+    menus = []
+    for x in range(0, len(tiles), 6):
+        menus.append(TileMenu(tiles[x:x+6]))
+    for num, menu in enumerate(menus):
+        if not num == 0:
+            menu.left = True
+        if not num == len(menus) - 1:
+            menu.right = True
+    return menus
+
+    
+
+def scratch():
+    global mode, currentGame
+    print("Scratch mode! currentGame: ", currentGame)
+    user = currentGame
+
+    menus = makeScratchMenu()
+    currentMenu = 0
+    
+    while mode == "scratch" and currentGame == user:
+        DISPLAY.blit(wallpaper, (0, 0))
+        for event in pygame.event.get():
+            if handleQuit(event):
+                pygame.quit()
+                mode == "quit"
+                break
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                currentMenu += menus[currentMenu].handleMouse(event.pos)
+                if currentMenu < 0: currentMenu = 0
+                if currentMenu >= len(menus): currentMenu = len(menus+1)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    currentMenu -= 1
+                    if currentMenu < 0:
+                        currentMenu = 0
+                elif event.key == pygame.K_RIGHT:
+                    currentMenu += 1
+                    if currentMenu >= len(menus):
+                        currentMenu = len(menus) - 1
+        menus[currentMenu].draw()
+        pygame.display.update()
+        clock.tick(30)
+    
 
 modes = {"home":home, "play":playSwitch, "edit":editSwitch,
          "editCode":editCode, "editImages":editImages, "editSounds":editSounds,
-         "download":downloadSwitch, "run":runGame, "delete":delete}
+         "download":downloadSwitch, "run":runGame, "delete":delete, "scratch":scratch}
 
 while True:
     if mode == "quit":
