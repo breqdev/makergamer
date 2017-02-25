@@ -6,6 +6,7 @@ from os import system, chdir
 from os.path import isfile
 from shutil import rmtree
 from requests import get as request
+from sys import argv
 import texteditor
 #from webbrowser import open as webopen
 pygame.init()
@@ -45,12 +46,15 @@ class Tile:
         self.currentGame = currentGame
 
 tiles = []
-tiles.append(Tile("icons/download.png", "Download", "download"))
+if "--demo" in argv:
+    tiles.append(Tile("icons/download-disabled.png", "Download"))
+else:
+    tiles.append(Tile("icons/download.png", "Download", "download"))
 tiles.append(Tile("icons/play.png", "Play", "play"))
 tiles.append(Tile("icons/edit.png", "Edit", "edit"))
-tiles.append(Tile("icons/person.png", "Friends"))
-tiles.append(Tile("icons/upload.png", "Upload"))
-tiles.append(Tile("icons/settings.png", "Settings"))
+tiles.append(Tile("icons/person-disabled.png", "Friends"))
+tiles.append(Tile("icons/upload-disabled.png", "Upload"))
+tiles.append(Tile("icons/settings-disabled.png", "Settings"))
 
 numToXy = {0:(0, 0), 1:(third, 0), 2:(2*third, 0),
            3:(0, half), 4:(third, half), 5:(2*third, half)}
@@ -358,6 +362,9 @@ def playGame():
     myGame = currentGame
     tiles = [Tile("icons/back.png", "Back", "play"), Tile("icons/play.png", "Play", "run", currentGame),
              Tile("icons/trash.png", "Delete", "delete", currentGame)]
+    if "--demo" in argv:
+        tiles[2] = Tile("icons/trash-disabled.png", "Delete", "play",
+                        currentGame) # Demo users can't delete stuff
     menu = HalfMenu(tiles)
     if isfile("games/"+currentGame+"/favicon.png"):
         icon = "games/"+currentGame+"/favicon.png"
@@ -423,9 +430,9 @@ def editGame():
     tiles = []
     tiles.append(Tile("icons/back.png", "Back", "edit"))
     tiles.append(Tile("icons/edit.png", "Edit Code", "editCode", currentGame))
-    tiles.append(Tile("icons/images.png", "Edit Images", "editImages", currentGame))
-    tiles.append(Tile("icons/sounds.png", "Edit Sounds", "editSounds", currentGame))
-    editMenu = TileMenu(tiles)
+    tiles.append(Tile("icons/images-disabled.png", "Edit Images", currentGame))
+    tiles.append(Tile("icons/sounds-disabled.png", "Edit Sounds", currentGame))
+    editMenu = TileMenu(tiles) # "Coming Soon" modes are editImages, editSounds
     while mode == "edit" and currentGame == startingGame:
         DISPLAY.blit(wallpaper, (0, 0))
         for event in pygame.event.get():
